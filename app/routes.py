@@ -28,7 +28,11 @@ def atualizacao():
 
 @app.route('/login')
 def login():
-    return render_template('login.html',titulo="Login")
+    return render_template('login.html',titulo="Login")\
+
+@app.route('/excluicao')
+def excluicao():
+    return render_template('excluicao.html',titulo="Excluição")
 
 
 @app.route('/cadastrarUsuario', methods=['POST'])
@@ -73,18 +77,25 @@ def listarIndividual():
 @app.route('/atualizar', methods=['POST'])
 def atualizar():
     try:
+        #request do banco de dados
         requesicao = requests.get(f'{link}/usuario/.json')
         dicionario = requesicao.json()
 
+        #request do form
         cpf      = request.form.get("cpf")
         nome     = request.form.get("nome")
+        email    = request.form.get("email")
+        senha    = request.form.get("senha")
         telefone = request.form.get("telefone")
         endereco = request.form.get("endereco")
         dados    = {"cpf": cpf, "nome": nome, "telefone": telefone, "endereco": endereco}
 
+        #procurar codigo
         for codigo in dicionario:
-            chave = dicionario[codigo][cpf]
+            chave = dicionario[codigo]['cpf']
             if chave == cpf:
+
+                #atualizar dados
                 requisicao = requests.patch(f'{link}/usuario/{codigo}/.json', data=json.dumps(dados))
                 return "Atualizado com sucesso!"
 
@@ -94,7 +105,18 @@ def atualizar():
 @app.route('/excluir')
 def excluir():
     try:
-        requisicao = requests.delete(f'{link}/usuario/-O8miG5UihB8pwZRAECG/.json')
-        return "Excluido com sucesso!"
+        # request do banco de dados
+        requesicao = requests.get(f'{link}/usuario/.json')
+        dicionario = requesicao.json()
+
+        # procurar codigo
+        for codigo in dicionario:
+            chave = dicionario[codigo]['cpf']
+            if chave == cpf:
+
+                # atualizar dados
+                requisicao = requests.delete(f'{link}/usuario/{codigo}/.json')
+                return "Excluido com sucesso!"
+
     except Exception as e:
         return f'Algo deu errado\n {e}'
