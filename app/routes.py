@@ -16,7 +16,11 @@ def contato():
 
 @app.route('/usuario')
 def usuario():
-    return render_template('usuario.html',titulo="Usuario")
+    requesicao = requests.get(f'{link}/usuario/.json')
+    dicionario = requesicao.json()
+
+
+    return render_template('usuario.html',titulo="Usuario" ,data="bancoDeDados")
 
 @app.route('/cadastro')
 def cadastro():
@@ -42,8 +46,8 @@ def cadastrarUsuario():
         nome       = request.form.get("nome")
         telefone   = request.form.get("telefone")
         endereco   = request.form.get("endereco")
-        dados      = {"cpf":cpf, "nome":nome, "telefone":telefone, "endereco":endereco}
-        requisicao = requests.post(f'{link}/usuario/.json',data = json.dumps(dados))
+        dados      = {"cpf": cpf, "nome": nome, "telefone": telefone, "endereco": endereco}
+        requisicao = requests.post(f'{link}/usuario/.json', data=json.dumps(dados))
         return 'Cadastrado com sucesso!'
     except Exception as e:
         return f'Ocorreu um erro\n +{e}'
@@ -63,9 +67,12 @@ def listarIndividual():
     try:
         requesicao = requests.get(f'{link}/usuario/.json')
         dicionario = requesicao.json()
-        procurar = request.form.get("procurar")
+
+        procurar   = request.form.get("procurar")
+
         for codigo in dicionario:
             chave = dicionario[codigo]['nome']
+
             if chave == procurar:
                 return f'Nome: {dicionario[codigo]["nome"]}\n<br>' \
                        f'CPF: {dicionario[codigo]["cpf"]}\n<br>' \
@@ -102,12 +109,13 @@ def atualizar():
     except Exception as e:
         return f'Algo deu errado\n {e}'
 
-@app.route('/excluir')
+@app.route('/excluir', methods=['POST'])
 def excluir():
     try:
         # request do banco de dados
         requesicao = requests.get(f'{link}/usuario/.json')
         dicionario = requesicao.json()
+        cpf = request.form.get("cpf")
 
         # procurar codigo
         for codigo in dicionario:
