@@ -5,6 +5,8 @@ import requests
 import json
 link = "https://flasktintjonatas-default-rtdb.firebaseio.com/"
 
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -18,6 +20,10 @@ def contato():
 def usuario():
     requesicao = requests.get(f'{link}/usuario/.json')
     dicionario = requesicao.json()
+    dados = []
+
+    for codigo in dicionario:
+        chave = dicionario[codigo]['nome']
 
 
     return render_template('usuario.html',titulo="Usuario" ,data="bancoDeDados")
@@ -39,6 +45,9 @@ def excluicao():
     return render_template('excluicao.html',titulo="Excluição")
 
 
+
+
+
 @app.route('/cadastrarUsuario', methods=['POST'])
 def cadastrarUsuario():
     try:
@@ -57,7 +66,7 @@ def listarTudo():
     try:
         requisicao = requests.get(f'{link}/usuario/.json')
         dicionario = requisicao.json()
-        return dicionario
+        return render_template('usuario.html',titulo='Usuario', dicionario=dicionario)
 
     except Exception as e:
         return f'Algo deu errado\n +{e}'
@@ -71,13 +80,13 @@ def listarIndividual():
         procurar   = request.form.get("procurar")
 
         for codigo in dicionario:
-            chave = dicionario[codigo]['nome']
+            nome     = dicionario[codigo]['nome']
+            cpf      = dicionario[codigo]['cpf']
+            telefone = dicionario[codigo]['telefone']
+            endereco = dicionario[codigo]['endereco']
 
-            if chave == procurar:
-                return f'Nome: {dicionario[codigo]["nome"]}\n<br>' \
-                       f'CPF: {dicionario[codigo]["cpf"]}\n<br>' \
-                       f'Telefone: {dicionario[codigo]["telefone"]}\n<br>' \
-                       f'Endereco: {dicionario[codigo]["endereco"]}\n<br>'
+            if nome == procurar:
+                return render_template('usuario.html',titulo='Usuario', nome=nome, cpf=cpf, telefone=telefone, endereco=endereco)
     except Exception as e:
         return f'Algo deu errado\n {e}'
 
