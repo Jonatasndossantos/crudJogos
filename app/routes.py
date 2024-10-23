@@ -1,6 +1,7 @@
 from app import app
 from flask import render_template
 from flask import request
+
 import requests
 import json
 link = "https://flasktintjonatas-default-rtdb.firebaseio.com/"
@@ -18,15 +19,7 @@ def contato():
 
 @app.route('/usuario')
 def usuario():
-    requesicao = requests.get(f'{link}/usuario/.json')
-    dicionario = requesicao.json()
-    dados = []
-
-    for codigo in dicionario:
-        chave = dicionario[codigo]['nome']
-
-
-    return render_template('usuario.html',titulo="Usuario" ,data="bancoDeDados")
+    return render_template('usuario.html',titulo="Usuario")
 
 @app.route('/cadastro')
 def cadastro():
@@ -55,12 +48,14 @@ def cadastrarUsuario():
         nome       = request.form.get("nome")
         telefone   = request.form.get("telefone")
         endereco   = request.form.get("endereco")
-        email   = request.form.get("email")
-        senha   = request.form.get("senha")
+        email      = request.form.get("email")
+        senha      = request.form.get("senha")
 
         dados      = {"cpf": cpf, "nome": nome, "telefone": telefone, "endereco": endereco, "email": email, "senha": senha}
         requisicao = requests.post(f'{link}/usuario/.json', data=json.dumps(dados))
-        return 'Cadastrado com sucesso!'
+
+        mensagem = "Cadastrado"
+        return render_template('sucesso.html',titulo="usuario", mensagem=mensagem)
     except Exception as e:
         return f'Ocorreu um erro\n +{e}'
 
@@ -87,11 +82,12 @@ def listarIndividual():
             cpf      = dicionario[codigo]['cpf']
             telefone = dicionario[codigo]['telefone']
             endereco = dicionario[codigo]['endereco']
-            email = dicionario[codigo]['email']
-            senha = dicionario[codigo]['senha']
+            email    = dicionario[codigo]['email']
+            senha    = dicionario[codigo]['senha']
 
             if nome == procurar:
                 return render_template('usuario.html',titulo='Usuario', nome=nome, cpf=cpf, telefone=telefone, endereco=endereco, email=email, senha=senha)
+        return "Não encontrado"
     except Exception as e:
         return f'Algo deu errado\n {e}'
 
@@ -109,6 +105,7 @@ def atualizar():
         senha    = request.form.get("senha")
         telefone = request.form.get("telefone")
         endereco = request.form.get("endereco")
+
         dados    = {"cpf": cpf, "nome": nome, "telefone": telefone, "endereco": endereco, "email": email, "senha": senha}
 
         #procurar codigo
@@ -118,7 +115,8 @@ def atualizar():
 
                 #atualizar dados
                 requisicao = requests.patch(f'{link}/usuario/{codigo}/.json', data=json.dumps(dados))
-                return "Atualizado com sucesso!"
+                mensagem = "Atualizado"
+                return render_template('sucesso.html', titulo="usuario", mensagem=mensagem)
 
     except Exception as e:
         return f'Algo deu errado\n {e}'
@@ -138,7 +136,8 @@ def excluir():
 
                 # atualizar dados
                 requisicao = requests.delete(f'{link}/usuario/{codigo}/.json')
-                return "Excluido com sucesso!"
+                mensagem = "Excluido"
+                return render_template('sucesso.html', titulo="usuario", mensagem=mensagem)
 
     except Exception as e:
         return f'Algo deu errado\n {e}'
